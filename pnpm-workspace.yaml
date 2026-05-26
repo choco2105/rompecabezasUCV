@@ -1,0 +1,16 @@
+allowBuilds:
+  sharp: set this to true or false
+  unrs-resolver: set this to true or false
+
+# Configuración de pnpm para el proyecto
+# Documentación oficial: https://pnpm.io/settings
+
+# Paquetes con scripts permitidos (defensa anti-supply-chain)
+onlyBuiltDependencies:
+  - sharp
+  - unrs-resolver
+
+# Overrides de versiones por seguridad
+# Forzar postcss seguro contra GHSA-qx2v-qp2m-jg93 (XSS)
+overrides:
+  postcss: ">=8.5.10"

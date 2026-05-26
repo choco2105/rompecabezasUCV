@@ -1,0 +1,285 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* ============================================
+   ANIMACIONES DEL JUEGO
+   ============================================ */
+
+/* Fase 2 — Coloreado */
+@keyframes fillFadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes detailsAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes splashParticle {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5) translateY(20px);
+  }
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(500px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Fase 3 — Rompecabezas */
+@keyframes puzzleComplete {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Pantalla de logros */
+@keyframes achievementFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes achievementStarPop {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-180deg);
+  }
+  70% {
+    transform: scale(1.3) rotate(10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.achievement-fade-in {
+  animation: achievementFadeIn 0.5s ease-out forwards;
+}
+
+.achievement-star-1 {
+  opacity: 0;
+  display: inline-block;
+  animation: achievementStarPop 0.6s ease-out 0.3s forwards;
+}
+
+.achievement-star-2 {
+  opacity: 0;
+  display: inline-block;
+  animation: achievementStarPop 0.6s ease-out 0.6s forwards;
+}
+
+.achievement-star-3 {
+  opacity: 0;
+  display: inline-block;
+  animation: achievementStarPop 0.6s ease-out 0.9s forwards;
+}
+
+/* ============================================
+   FONDO AMBIENTAL (AnimatedBackground)
+   ============================================ */
+
+@keyframes sunRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ambientFloat {
+  0%, 100% {
+    transform: translate(0, 0) rotate(-5deg);
+  }
+  50% {
+    transform: translate(15px, -20px) rotate(5deg);
+  }
+}
+
+@keyframes ambientBubble {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateY(-50vh) translateX(20px);
+  }
+  100% {
+    transform: translateY(-110vh) translateX(-20px);
+    opacity: 0;
+  }
+}
+
+@keyframes ambientFall {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+  }
+  100% {
+    transform: translateY(110vh) translateX(50px) rotate(360deg);
+  }
+}
+
+@keyframes ambientDrift {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(40px);
+  }
+}
+
+@keyframes ambientTwinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+}
+
+.ambient-sun {
+  animation: sunRotate 60s linear infinite;
+}
+
+.ambient-float {
+  animation: ambientFloat 12s ease-in-out infinite;
+}
+
+.ambient-bubble {
+  animation: ambientBubble 15s linear infinite;
+}
+
+.ambient-fall {
+  animation: ambientFall 18s linear infinite;
+}
+
+.ambient-drift {
+  animation: ambientDrift 20s ease-in-out infinite;
+}
+
+.ambient-twinkle {
+  animation: ambientTwinkle 2.5s ease-in-out infinite;
+}
+
+/* ============================================
+   PANTALLA DE INICIO
+   ============================================ */
+
+@keyframes titleBreathe {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+@keyframes cardGlow {
+  0%, 100% {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15),
+                0 0 0 4px rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 10px 35px rgba(253, 224, 71, 0.5),
+                0 0 0 4px rgba(253, 224, 71, 0.6);
+  }
+}
+
+@keyframes lockShake {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
+}
+
+.title-breathe {
+  animation: titleBreathe 4s ease-in-out infinite;
+}
+
+.card-glow {
+  animation: cardGlow 3s ease-in-out infinite;
+}
+
+.lock-shake {
+  animation: lockShake 0.5s ease-in-out infinite;
+  animation-play-state: paused;
+}
+
+.lock-shake:hover {
+  animation-play-state: running;
+}
+
+/* ============================================
+   CONFETI EN PANTALLA DE LOGROS
+   ============================================ */
+
+@keyframes confettiPiece {
+  0% {
+    transform: translateY(-20vh) translateX(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(120vh) translateX(50px) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.confetti-piece {
+  position: absolute;
+  width: 10px;
+  height: 14px;
+  animation: confettiPiece 4s linear forwards;
+}
