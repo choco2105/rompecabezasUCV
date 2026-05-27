@@ -76,12 +76,7 @@ export default function GameContainer({ level }: GameContainerProps) {
     <main
       className={`relative min-h-screen w-full overflow-hidden bg-gradient-to-b ${bgGradient}`}
     >
-      <AnimatedBackground theme={
-        level.theme === 'selva' ? 'jungle' :
-        level.theme === 'costa' ? 'ocean' :
-        level.theme === 'sierra' ? 'snow' :
-        'garden'
-      } />
+      <AnimatedBackground theme={level.theme} />
 
       {phase === 'achievement' && <ConfettiBurst />}
 
