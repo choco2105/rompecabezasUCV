@@ -15,7 +15,7 @@ body {
    ANIMACIONES DEL JUEGO
    ============================================ */
 
-/* Fase 2 — Coloreado */
+/* Fase 2 — Coloreado (vestigios, por si se reusan) */
 @keyframes fillFadeIn {
   to {
     opacity: 1;
@@ -282,4 +282,72 @@ body {
   width: 10px;
   height: 14px;
   animation: confettiPiece 4s linear forwards;
+}
+
+/* ============================================
+   PANTALLA DE BIENVENIDA (boton JUGAR)
+   ============================================ */
+
+@keyframes welcomeBounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-15px) scale(1.05);
+  }
+}
+
+@keyframes welcomeWiggle {
+  0%, 100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  25% {
+    transform: rotate(-8deg) translateY(-5px);
+  }
+  75% {
+    transform: rotate(8deg) translateY(-5px);
+  }
+}
+
+@keyframes welcomePulse {
+  0%, 100% {
+    box-shadow: 0 10px 30px rgba(253, 224, 71, 0.5),
+                0 0 0 4px white,
+                0 0 0 6px rgba(253, 224, 71, 0.3);
+  }
+  50% {
+    box-shadow: 0 10px 40px rgba(253, 224, 71, 0.7),
+                0 0 0 4px white,
+                0 0 0 12px rgba(253, 224, 71, 0.4);
+  }
+}
+
+.welcome-bounce {
+  animation: welcomeBounce 2.5s ease-in-out infinite;
+}
+
+.welcome-wiggle {
+  display: inline-block;
+  animation: welcomeWiggle 2s ease-in-out infinite;
+}
+
+.welcome-pulse {
+  animation: welcomePulse 2s ease-in-out infinite;
+}
+
+/* ============================================
+   ANIMACIÓN SUAVE DE FLOTACIÓN EN LOGRO
+   ============================================ */
+
+@keyframes achievementFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-12px) scale(1.02);
+  }
+}
+
+.achievement-float {
+  animation: achievementFloat 3s ease-in-out infinite;
 }

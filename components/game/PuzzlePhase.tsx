@@ -3,11 +3,13 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Level } from '@/lib/types';
 import { GAME_VIEWBOX } from '@/lib/constants';
-import { getCharacterDetails } from '@/lib/characters';
 import {
   generatePieces,
   isPieceNearTarget,
-  calculateBBoxFromPath,
+  getPieceDimensions,
+  PUZZLE_SIZE,
+  PUZZLE_OFFSET_X,
+  PUZZLE_OFFSET_Y,
   type PieceRegion,
 } from '@/lib/puzzleGeometry';
 import { screenToSvg } from '@/lib/pathMath';
@@ -24,17 +26,32 @@ interface PieceState extends PieceRegion {
   isSnapped: boolean;
 }
 
+/**
+ * Convierte un imagePosition CSS ("50% 30%") al preserveAspectRatio SVG
+ * equivalente. SVG usa keywords: xMin/xMid/xMax y yMin/yMid/yMax.
+ * Aproximamos según los porcentajes.
+ */
+function cssPositionToSvgAspect(pos?: string): string {
+  if (!pos) return 'xMidYMid slice';
+
+  const [xStr, yStr] = pos.split(' ');
+  const x = parseInt(xStr) || 50;
+  const y = parseInt(yStr) || 50;
+
+  const xKey = x <= 33 ? 'xMin' : x >= 66 ? 'xMax' : 'xMid';
+  const yKey = y <= 33 ? 'YMin' : y >= 66 ? 'YMax' : 'YMid';
+
+  return `${xKey}${yKey} slice`;
+}
+
 export default function PuzzlePhase({ level, onComplete }: PuzzlePhaseProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const bbox = calculateBBoxFromPath(level.tracingPath);
+  const dims = getPieceDimensions(level.puzzlePieces);
+  const aspectRatio = cssPositionToSvgAspect(level.imagePosition);
 
   const [pieces, setPieces] = useState<PieceState[]>(() => {
-    const regions = generatePieces(
-      level.puzzlePieces,
-      level.cutStyle,
-      level.tracingPath
-    );
+    const regions = generatePieces(level.puzzlePieces);
     return regions.map((r) => ({
       ...r,
       currentX: r.startX,
@@ -74,9 +91,7 @@ export default function PuzzlePhase({ level, onComplete }: PuzzlePhaseProps) {
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (draggingId === null || !svgRef.current) return;
-
     const svgPos = screenToSvg(svgRef.current, e.clientX, e.clientY);
-
     setPieces((prev) =>
       prev.map((p) =>
         p.id === draggingId
@@ -96,15 +111,12 @@ export default function PuzzlePhase({ level, onComplete }: PuzzlePhaseProps) {
     setPieces((prev) =>
       prev.map((p) => {
         if (p.id !== draggingId) return p;
-
         const near = isPieceNearTarget(
           { x: p.currentX, y: p.currentY },
           { x: p.targetX, y: p.targetY },
           level.pieceTolerance
         );
-
         if (near) {
-          // 🔔 Sonido al encajar
           audioSystem.playSfx('pieceSnap');
           return {
             ...p,
@@ -114,7 +126,6 @@ export default function PuzzlePhase({ level, onComplete }: PuzzlePhaseProps) {
             rotation: 0,
           };
         }
-
         return p;
       })
     );
@@ -134,37 +145,55 @@ export default function PuzzlePhase({ level, onComplete }: PuzzlePhaseProps) {
         onPointerCancel={handlePointerUp}
       >
         <defs>
-          {pieces.map((p) => (
-            <clipPath key={`clip-${p.id}`} id={`piece-clip-${level.id}-${p.id}`}>
-              <rect
-                x={p.clipX}
-                y={p.clipY}
-                width={p.clipWidth}
-                height={p.clipHeight}
-              />
-            </clipPath>
-          ))}
-          <clipPath id={`character-shape-${level.id}`}>
-            <path d={level.tracingPath} />
-          </clipPath>
+          {pieces.map((p) => {
+            const srcX = PUZZLE_OFFSET_X + p.col * dims.width;
+            const srcY = PUZZLE_OFFSET_Y + p.row * dims.height;
+            return (
+              <clipPath key={`clip-${p.id}`} id={`clip-${level.id}-${p.id}`}>
+                <rect
+                  x={srcX}
+                  y={srcY}
+                  width={dims.width}
+                  height={dims.height}
+                />
+              </clipPath>
+            );
+          })}
         </defs>
 
-        <g opacity="0.2">
-          <path
-            d={level.tracingPath}
-            fill={level.fillColor}
-            stroke={level.accentColor}
-            strokeWidth="3"
-          />
-        </g>
+        <rect
+          x={PUZZLE_OFFSET_X}
+          y={PUZZLE_OFFSET_Y}
+          width={PUZZLE_SIZE}
+          height={PUZZLE_SIZE}
+          fill="rgba(255,255,255,0.15)"
+          stroke="rgba(255,255,255,0.7)"
+          strokeWidth="3"
+          strokeDasharray="8 6"
+          rx="8"
+        />
+
+        {/* Imagen fantasma como pista */}
+        <image
+          href={level.imageSrc}
+          x={PUZZLE_OFFSET_X}
+          y={PUZZLE_OFFSET_Y}
+          width={PUZZLE_SIZE}
+          height={PUZZLE_SIZE}
+          preserveAspectRatio={aspectRatio}
+          opacity="0.18"
+          style={{ pointerEvents: 'none' }}
+        />
 
         {pieces.map((piece) => {
-          const pieceCenterX = piece.clipX + piece.clipWidth / 2;
-          const pieceCenterY = piece.clipY + piece.clipHeight / 2;
+          const pieceCenterX = piece.targetX;
+          const pieceCenterY = piece.targetY;
           const translateX = piece.currentX - pieceCenterX;
           const translateY = piece.currentY - pieceCenterY;
-
           const isDragging = draggingId === piece.id;
+
+          const srcX = PUZZLE_OFFSET_X + piece.col * dims.width;
+          const srcY = PUZZLE_OFFSET_Y + piece.row * dims.height;
 
           return (
             <g
@@ -180,24 +209,30 @@ export default function PuzzlePhase({ level, onComplete }: PuzzlePhaseProps) {
                   ? 'none'
                   : 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
                 filter: piece.isSnapped
-                  ? 'none'
-                  : 'drop-shadow(0 6px 10px rgba(0,0,0,0.3))',
+                  ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+                  : 'drop-shadow(0 8px 12px rgba(0,0,0,0.4))',
               }}
             >
-              <g clipPath={`url(#piece-clip-${level.id}-${piece.id})`}>
-                <g clipPath={`url(#character-shape-${level.id})`}>
-                  <path d={level.tracingPath} fill={level.fillColor} />
-                  {getCharacterDetails(level.id)}
-                </g>
-                <path
-                  d={level.tracingPath}
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="10"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+              <g clipPath={`url(#clip-${level.id}-${piece.id})`}>
+                <image
+                  href={level.imageSrc}
+                  x={PUZZLE_OFFSET_X}
+                  y={PUZZLE_OFFSET_Y}
+                  width={PUZZLE_SIZE}
+                  height={PUZZLE_SIZE}
+                  preserveAspectRatio={aspectRatio}
                 />
               </g>
+              <rect
+                x={srcX}
+                y={srcY}
+                width={dims.width}
+                height={dims.height}
+                fill="none"
+                stroke="white"
+                strokeWidth="3"
+                rx="4"
+              />
             </g>
           );
         })}
@@ -205,17 +240,16 @@ export default function PuzzlePhase({ level, onComplete }: PuzzlePhaseProps) {
         {allSnapped && (
           <g style={{ animation: 'puzzleComplete 0.5s ease-out forwards' }}>
             <circle
-              cx={bbox.x + bbox.width / 2}
-              cy={bbox.y + bbox.height / 2}
-              r="30"
-              fill="#FFD700"
-              opacity="0.6"
+              cx={PUZZLE_OFFSET_X + PUZZLE_SIZE / 2}
+              cy={PUZZLE_OFFSET_Y + PUZZLE_SIZE / 2}
+              r="50"
+              fill="rgba(255,215,0,0.4)"
             />
             <text
-              x={bbox.x + bbox.width / 2}
-              y={bbox.y + bbox.height / 2 + 12}
+              x={PUZZLE_OFFSET_X + PUZZLE_SIZE / 2}
+              y={PUZZLE_OFFSET_Y + PUZZLE_SIZE / 2 + 18}
               textAnchor="middle"
-              fontSize="40"
+              fontSize="60"
             >
               ✨
             </text>

@@ -1,65 +1,31 @@
 // ============================================
-// GEOMETRÍA DE LAS PIEZAS DEL ROMPECABEZAS
-// 4 piezas en cuadrícula 2x2, dispersión aleatoria
-// El bounding box se calcula dinámicamente por personaje
+// GEOMETRÍA DEL ROMPECABEZAS CON IMÁGENES JPG
 // ============================================
 
-import type { Point, PieceCount, CutStyle } from './types';
+import type { Point, PieceCount } from './types';
 
 export interface PieceRegion {
   id: number;
-  clipX: number;
-  clipY: number;
-  clipWidth: number;
-  clipHeight: number;
+  row: number;
+  col: number;
+  // Posición ORIGEN (donde debe encajar) en el SVG
   targetX: number;
   targetY: number;
+  // Posición INICIAL (dispersa)
   startX: number;
   startY: number;
+  // Rotación inicial
   rotation: number;
 }
 
 const VIEWBOX_WIDTH = 800;
 const VIEWBOX_HEIGHT = 600;
 
-/**
- * Calcula el bounding box de un path SVG analizando sus coordenadas.
- * Extrae todos los pares (x,y) del atributo "d" del path.
- */
-export function calculateBBoxFromPath(pathD: string) {
-  // Extraer todos los números del path (incluyendo decimales y negativos)
-  const numbers = pathD.match(/-?\d+\.?\d*/g);
-  if (!numbers || numbers.length < 2) {
-    return { x: 100, y: 100, width: 600, height: 400 };
-  }
+// Tamaño del puzzle armado (cuadrado centrado en el viewbox)
+export const PUZZLE_SIZE = 380;
+export const PUZZLE_OFFSET_X = (VIEWBOX_WIDTH - PUZZLE_SIZE) / 2;
+export const PUZZLE_OFFSET_Y = (VIEWBOX_HEIGHT - PUZZLE_SIZE) / 2;
 
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-
-  // Los números vienen en pares (x, y)
-  for (let i = 0; i < numbers.length - 1; i += 2) {
-    const x = parseFloat(numbers[i]);
-    const y = parseFloat(numbers[i + 1]);
-    if (!isNaN(x) && !isNaN(y)) {
-      if (x < minX) minX = x;
-      if (x > maxX) maxX = x;
-      if (y < minY) minY = y;
-      if (y > maxY) maxY = y;
-    }
-  }
-
-  // Agregar margen para que las piezas tengan colchón visual
-  const margin = 30;
-  return {
-    x: Math.max(0, minX - margin),
-    y: Math.max(0, minY - margin),
-    width: Math.min(VIEWBOX_WIDTH, maxX - minX + margin * 2),
-    height: Math.min(VIEWBOX_HEIGHT, maxY - minY + margin * 2),
-  };
-}
-
-/**
- * Mezcla un array aleatoriamente (Fisher-Yates)
- */
 function shuffleArray<T>(array: T[]): T[] {
   const arr = [...array];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -70,55 +36,75 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 /**
- * Genera 4 piezas en cuadrícula 2x2 sobre el bounding box del personaje.
- * Las posiciones de dispersión se asignan aleatoriamente a las 4 esquinas
- * de la pantalla, con rotación ligera para parecer "tiradas".
+ * Calcula filas y columnas según cantidad de piezas
  */
-export function generatePieces(
-  _count: PieceCount,
-  _cutStyle: CutStyle,
-  pathD: string
-): PieceRegion[] {
-  const bbox = calculateBBoxFromPath(pathD);
-  const pieceWidth = bbox.width / 2;
-  const pieceHeight = bbox.height / 2;
+function getGrid(count: PieceCount): { rows: number; cols: number } {
+  switch (count) {
+    case 4:
+      return { rows: 2, cols: 2 };
+    case 6:
+      return { rows: 2, cols: 3 };
+    case 9:
+      return { rows: 3, cols: 3 };
+    default:
+      return { rows: 2, cols: 2 };
+  }
+}
 
-  const positions = [
-    { col: 0, row: 0 },
-    { col: 1, row: 0 },
-    { col: 0, row: 1 },
-    { col: 1, row: 1 },
-  ];
+/**
+ * Calcula posiciones de dispersión alrededor del puzzle
+ * (sin pisarlo, distribuidas en los márgenes)
+ */
+function getScatterPositions(count: number): Point[] {
+  const margin = 80;
+  const positions: Point[] = [];
 
-  // Esquinas de la pantalla donde dispersar piezas
-  const corners = [
-    { x: 90, y: 90 },
-    { x: VIEWBOX_WIDTH - 90, y: 90 },
-    { x: 90, y: VIEWBOX_HEIGHT - 90 },
-    { x: VIEWBOX_WIDTH - 90, y: VIEWBOX_HEIGHT - 90 },
-  ];
+  // Lado izquierdo
+  positions.push({ x: margin, y: margin + 30 });
+  positions.push({ x: margin, y: VIEWBOX_HEIGHT / 2 });
+  positions.push({ x: margin, y: VIEWBOX_HEIGHT - margin - 30 });
 
-  // Mezclar las esquinas para que las piezas no siempre vayan al mismo lugar
-  const shuffledCorners = shuffleArray(corners);
+  // Lado derecho
+  positions.push({ x: VIEWBOX_WIDTH - margin, y: margin + 30 });
+  positions.push({ x: VIEWBOX_WIDTH - margin, y: VIEWBOX_HEIGHT / 2 });
+  positions.push({ x: VIEWBOX_WIDTH - margin, y: VIEWBOX_HEIGHT - margin - 30 });
+
+  // Si faltan, agregar arriba y abajo
+  positions.push({ x: VIEWBOX_WIDTH / 2 - 100, y: margin });
+  positions.push({ x: VIEWBOX_WIDTH / 2 + 100, y: VIEWBOX_HEIGHT - margin });
+  positions.push({ x: VIEWBOX_WIDTH / 2, y: margin });
+
+  return positions.slice(0, count);
+}
+
+export function generatePieces(count: PieceCount): PieceRegion[] {
+  const { rows, cols } = getGrid(count);
+  const pieceWidth = PUZZLE_SIZE / cols;
+  const pieceHeight = PUZZLE_SIZE / rows;
+
+  const positions: { row: number; col: number }[] = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      positions.push({ row: r, col: c });
+    }
+  }
+
+  const scatterPos = shuffleArray(getScatterPositions(positions.length));
 
   return positions.map((pos, i) => {
-    const corner = shuffledCorners[i];
-    // Pequeña variación aleatoria dentro de cada esquina (±25 px)
-    const jitterX = (Math.random() - 0.5) * 50;
-    const jitterY = (Math.random() - 0.5) * 50;
-    // Rotación aleatoria entre -20° y +20°
-    const rotation = (Math.random() - 0.5) * 40;
+    const scatter = scatterPos[i];
+    const jitterX = (Math.random() - 0.5) * 30;
+    const jitterY = (Math.random() - 0.5) * 30;
+    const rotation = (Math.random() - 0.5) * 30;
 
     return {
       id: i,
-      clipX: bbox.x + pos.col * pieceWidth,
-      clipY: bbox.y + pos.row * pieceHeight,
-      clipWidth: pieceWidth,
-      clipHeight: pieceHeight,
-      targetX: bbox.x + pos.col * pieceWidth + pieceWidth / 2,
-      targetY: bbox.y + pos.row * pieceHeight + pieceHeight / 2,
-      startX: corner.x + jitterX,
-      startY: corner.y + jitterY,
+      row: pos.row,
+      col: pos.col,
+      targetX: PUZZLE_OFFSET_X + pos.col * pieceWidth + pieceWidth / 2,
+      targetY: PUZZLE_OFFSET_Y + pos.row * pieceHeight + pieceHeight / 2,
+      startX: scatter.x + jitterX,
+      startY: scatter.y + jitterY,
       rotation,
     };
   });
@@ -132,6 +118,16 @@ export function isPieceNearTarget(
   const dx = current.x - target.x;
   const dy = current.y - target.y;
   return Math.sqrt(dx * dx + dy * dy) <= tolerance;
+}
+
+export function getPieceDimensions(count: PieceCount) {
+  const { rows, cols } = getGrid(count);
+  return {
+    width: PUZZLE_SIZE / cols,
+    height: PUZZLE_SIZE / rows,
+    rows,
+    cols,
+  };
 }
 
 export { VIEWBOX_WIDTH, VIEWBOX_HEIGHT };
