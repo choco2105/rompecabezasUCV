@@ -1,10 +1,18 @@
 import type { Metadata, Viewport } from "next";
+import { Nunito } from "next/font/google";
 import "./globals.css";
 import SoundManager from "@/components/game/SoundManager";
 
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800", "900"],
+  variable: "--font-nunito",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Rompecabezas para Niños",
-  description: "Juego educativo de trazado y rompecabezas para niños de inicial",
+  title: "Mi Perú - Rompecabezas Intercultural",
+  description: "Juego educativo de rompecabezas con flora, fauna y paisajes del Perú",
   robots: {
     index: false,
     follow: false,
@@ -25,8 +33,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
-      <body className="antialiased overflow-hidden">
+    <html lang="es" className={nunito.variable}>
+      <body className="antialiased overflow-hidden font-nunito">
         <SoundManager />
         {children}
       </body>

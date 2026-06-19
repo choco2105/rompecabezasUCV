@@ -7,16 +7,17 @@ import { THEME_BACKGROUNDS } from '@/lib/constants';
 import { markLevelCompleted, getNextLevel } from '@/lib/progress';
 import { audioSystem } from '@/lib/audio';
 import PuzzlePhase from './PuzzlePhase';
+import AchievementParticles from './AchievementParticles';
 import AnimatedBackground from '@/components/ambient/AnimatedBackground';
 
 interface GameContainerProps {
   level: Level;
 }
 
-const confettiColors = ['#FFD700', '#FF69B4', '#87CEEB', '#90EE90', '#FFA500'];
+const confettiColors = ['#FFD700', '#FF69B4', '#87CEEB', '#90EE90', '#FFA500', '#FF6B6B', '#9B59B6'];
 
 function ConfettiBurst() {
-  const pieces = Array.from({ length: 40 }, (_, i) => ({
+  const pieces = Array.from({ length: 60 }, (_, i) => ({
     id: i,
     left: Math.random() * 100,
     delay: Math.random() * 3,
@@ -58,9 +59,9 @@ export default function GameContainer({ level }: GameContainerProps) {
     if (phase === 'achievement') {
       markLevelCompleted(level.id);
       audioSystem.playSfx('levelComplete');
-      setTimeout(() => audioSystem.playSfx('starPop'), 300);
-      setTimeout(() => audioSystem.playSfx('starPop'), 600);
-      setTimeout(() => audioSystem.playSfx('starPop'), 900);
+      setTimeout(() => audioSystem.playSfx('starPop'), 500);
+      setTimeout(() => audioSystem.playSfx('starPop'), 800);
+      setTimeout(() => audioSystem.playSfx('starPop'), 1100);
     }
   }, [phase, level.id]);
 
@@ -78,7 +79,12 @@ export default function GameContainer({ level }: GameContainerProps) {
     >
       <AnimatedBackground theme={level.theme} />
 
-      {phase === 'achievement' && <ConfettiBurst />}
+      {phase === 'achievement' && (
+        <>
+          <ConfettiBurst />
+          <AchievementParticles />
+        </>
+      )}
 
       <Link
         href="/"
@@ -115,7 +121,19 @@ export default function GameContainer({ level }: GameContainerProps) {
 
         {phase === 'achievement' && (
           <div className="text-center achievement-fade-in z-20 max-w-2xl w-full px-4">
-            <div className="achievement-float mb-4 inline-block overflow-hidden rounded-3xl shadow-2xl ring-4 ring-white/80">
+            {/* Banner ¡INCREÍBLE! */}
+            <div
+              className="banner-slam mb-4 inline-block bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-500 text-white text-4xl sm:text-5xl font-extrabold px-8 py-3 rounded-2xl shadow-2xl ring-4 ring-white"
+              style={{
+                textShadow: '3px 3px 0 rgba(0,0,0,0.2)',
+                letterSpacing: '2px',
+              }}
+            >
+              ¡INCREÍBLE! 🎉
+            </div>
+
+            {/* Imagen con marco arcoíris */}
+            <div className="achievement-float mb-4 inline-block overflow-hidden rounded-3xl shadow-2xl rainbow-border">
               <img
                 src={level.imageSrc}
                 alt={level.nombre}
@@ -128,32 +146,35 @@ export default function GameContainer({ level }: GameContainerProps) {
               {level.nombre}
             </p>
             <p className="text-base sm:text-lg text-slate-600 mb-4 italic">
-              {level.region}
+              📍 {level.region}
             </p>
 
-            <div className="mx-auto mb-4 max-w-md rounded-2xl bg-white/85 px-5 py-3 shadow-md">
-              <p className="text-sm sm:text-base text-slate-700">
-                💡 {level.dato}
+            <div className="mx-auto mb-4 max-w-md rounded-2xl bg-white/95 px-5 py-3 shadow-xl ring-2 ring-yellow-300">
+              <p className="text-sm sm:text-base text-slate-700 font-semibold">
+                💡 ¿Sabías que?
+              </p>
+              <p className="text-sm sm:text-base text-slate-800 mt-1">
+                {level.dato}
               </p>
             </div>
 
             <div className="flex justify-center gap-3 mb-6">
-              <span className="text-5xl achievement-star-1">⭐</span>
-              <span className="text-5xl achievement-star-2">⭐</span>
-              <span className="text-5xl achievement-star-3">⭐</span>
+              <span className="text-6xl achievement-star-1">⭐</span>
+              <span className="text-6xl achievement-star-2">⭐</span>
+              <span className="text-6xl achievement-star-3">⭐</span>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 href="/"
-                className="inline-block bg-white/90 text-slate-800 text-lg font-bold px-7 py-3 rounded-full shadow-lg hover:scale-105 transition-transform"
+                className="inline-block bg-white/95 text-slate-800 text-lg font-bold px-7 py-3 rounded-full shadow-lg hover:scale-105 transition-transform"
               >
                 🏠 Menú
               </Link>
               {nextLevel && (
                 <Link
                   href={`/jugar/${nextLevel.id}`}
-                  className="inline-block bg-yellow-400 text-slate-800 text-lg font-bold px-7 py-3 rounded-full shadow-lg hover:scale-105 transition-transform animate-pulse"
+                  className="inline-block bg-gradient-to-r from-yellow-300 to-orange-400 text-slate-900 text-lg font-extrabold px-7 py-3 rounded-full shadow-2xl hover:scale-110 transition-transform animate-pulse ring-4 ring-white"
                 >
                   Siguiente nivel →
                 </Link>

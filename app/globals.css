@@ -8,93 +8,72 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-nunito), system-ui, -apple-system, sans-serif;
+}
+
+.font-nunito {
+  font-family: var(--font-nunito), system-ui, -apple-system, sans-serif;
 }
 
 /* ============================================
-   ANIMACIONES DEL JUEGO
+   FASE 3 — ROMPECABEZAS
    ============================================ */
 
-/* Fase 2 — Coloreado (vestigios, por si se reusan) */
-@keyframes fillFadeIn {
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes detailsAppear {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes splashParticle {
-  0% {
-    opacity: 0;
-    transform: scale(0);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.5);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(0.5) translateY(20px);
-  }
-}
-
-@keyframes confettiFall {
-  0% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(500px) rotate(360deg);
-    opacity: 0;
-  }
-}
-
-/* Fase 3 — Rompecabezas */
 @keyframes puzzleComplete {
-  from {
-    opacity: 0;
-    transform: scale(0);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
 
-/* Pantalla de logros */
+@keyframes sparkleBurst {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(0) rotate(0deg); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(2) rotate(180deg); }
+}
+
+/* ============================================
+   PANTALLA DE LOGROS
+   ============================================ */
+
 @keyframes achievementFadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 @keyframes achievementStarPop {
-  0% {
-    opacity: 0;
-    transform: scale(0) rotate(-180deg);
-  }
-  70% {
-    transform: scale(1.3) rotate(10deg);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
-  }
+  0% { opacity: 0; transform: scale(0) rotate(-180deg); }
+  60% { transform: scale(1.4) rotate(20deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+@keyframes starGlow {
+  0%, 100% { filter: drop-shadow(0 0 8px gold) brightness(1); }
+  50% { filter: drop-shadow(0 0 20px gold) brightness(1.3); }
+}
+
+@keyframes bannerSlam {
+  0% { opacity: 0; transform: translateY(-200px) rotate(-15deg) scale(2); }
+  60% { transform: translateY(0) rotate(5deg) scale(1.1); }
+  80% { transform: translateY(0) rotate(-3deg) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+}
+
+@keyframes achievementFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-12px) scale(1.02); }
+}
+
+@keyframes confettiPiece {
+  0% { transform: translateY(-20vh) translateX(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(120vh) translateX(50px) rotate(720deg); opacity: 0; }
+}
+
+@keyframes fireworksBurst {
+  0% { opacity: 1; transform: translate(0, 0) scale(0); }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.5); }
+}
+
+@keyframes balloonFloat {
+  0% { transform: translateY(110vh) translateX(0) rotate(-2deg); }
+  100% { transform: translateY(-30vh) translateX(40px) rotate(2deg); }
 }
 
 .achievement-fade-in {
@@ -104,177 +83,33 @@ body {
 .achievement-star-1 {
   opacity: 0;
   display: inline-block;
-  animation: achievementStarPop 0.6s ease-out 0.3s forwards;
+  animation:
+    achievementStarPop 0.6s ease-out 0.3s forwards,
+    starGlow 2s ease-in-out 0.9s infinite;
 }
 
 .achievement-star-2 {
   opacity: 0;
   display: inline-block;
-  animation: achievementStarPop 0.6s ease-out 0.6s forwards;
+  animation:
+    achievementStarPop 0.6s ease-out 0.6s forwards,
+    starGlow 2s ease-in-out 1.2s infinite;
 }
 
 .achievement-star-3 {
   opacity: 0;
   display: inline-block;
-  animation: achievementStarPop 0.6s ease-out 0.9s forwards;
+  animation:
+    achievementStarPop 0.6s ease-out 0.9s forwards,
+    starGlow 2s ease-in-out 1.5s infinite;
 }
 
-/* ============================================
-   FONDO AMBIENTAL (AnimatedBackground)
-   ============================================ */
-
-@keyframes sunRotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.achievement-float {
+  animation: achievementFloat 3s ease-in-out infinite;
 }
 
-@keyframes ambientFloat {
-  0%, 100% {
-    transform: translate(0, 0) rotate(-5deg);
-  }
-  50% {
-    transform: translate(15px, -20px) rotate(5deg);
-  }
-}
-
-@keyframes ambientBubble {
-  0% {
-    transform: translateY(0) translateX(0);
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 0.8;
-    transform: translateY(-50vh) translateX(20px);
-  }
-  100% {
-    transform: translateY(-110vh) translateX(-20px);
-    opacity: 0;
-  }
-}
-
-@keyframes ambientFall {
-  0% {
-    transform: translateY(0) translateX(0) rotate(0deg);
-  }
-  100% {
-    transform: translateY(110vh) translateX(50px) rotate(360deg);
-  }
-}
-
-@keyframes ambientDrift {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(40px);
-  }
-}
-
-@keyframes ambientTwinkle {
-  0%, 100% {
-    opacity: 0.3;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.3);
-  }
-}
-
-.ambient-sun {
-  animation: sunRotate 60s linear infinite;
-}
-
-.ambient-float {
-  animation: ambientFloat 12s ease-in-out infinite;
-}
-
-.ambient-bubble {
-  animation: ambientBubble 15s linear infinite;
-}
-
-.ambient-fall {
-  animation: ambientFall 18s linear infinite;
-}
-
-.ambient-drift {
-  animation: ambientDrift 20s ease-in-out infinite;
-}
-
-.ambient-twinkle {
-  animation: ambientTwinkle 2.5s ease-in-out infinite;
-}
-
-/* ============================================
-   PANTALLA DE INICIO
-   ============================================ */
-
-@keyframes titleBreathe {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.04);
-  }
-}
-
-@keyframes cardGlow {
-  0%, 100% {
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15),
-                0 0 0 4px rgba(255, 255, 255, 0.5);
-  }
-  50% {
-    box-shadow: 0 10px 35px rgba(253, 224, 71, 0.5),
-                0 0 0 4px rgba(253, 224, 71, 0.6);
-  }
-}
-
-@keyframes lockShake {
-  0%, 100% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(-5deg);
-  }
-  75% {
-    transform: rotate(5deg);
-  }
-}
-
-.title-breathe {
-  animation: titleBreathe 4s ease-in-out infinite;
-}
-
-.card-glow {
-  animation: cardGlow 3s ease-in-out infinite;
-}
-
-.lock-shake {
-  animation: lockShake 0.5s ease-in-out infinite;
-  animation-play-state: paused;
-}
-
-.lock-shake:hover {
-  animation-play-state: running;
-}
-
-/* ============================================
-   CONFETI EN PANTALLA DE LOGROS
-   ============================================ */
-
-@keyframes confettiPiece {
-  0% {
-    transform: translateY(-20vh) translateX(0) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(120vh) translateX(50px) rotate(720deg);
-    opacity: 0;
-  }
+.banner-slam {
+  animation: bannerSlam 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
 }
 
 .confetti-piece {
@@ -284,29 +119,158 @@ body {
   animation: confettiPiece 4s linear forwards;
 }
 
+.firework-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: fireworksBurst 1s ease-out forwards;
+}
+
+.balloon-rise {
+  position: absolute;
+  animation: balloonFloat 8s linear forwards;
+}
+
 /* ============================================
-   PANTALLA DE BIENVENIDA (boton JUGAR)
+   FONDO AMBIENTAL
    ============================================ */
 
-@keyframes welcomeBounce {
+@keyframes sunRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ambientFloat {
+  0%, 100% { transform: translate(0, 0) rotate(-5deg); }
+  50% { transform: translate(15px, -20px) rotate(5deg); }
+}
+
+@keyframes ambientBubble {
+  0% { transform: translateY(0) translateX(0); opacity: 0.4; }
+  50% { opacity: 0.8; transform: translateY(-50vh) translateX(20px); }
+  100% { transform: translateY(-110vh) translateX(-20px); opacity: 0; }
+}
+
+@keyframes ambientFall {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); }
+  100% { transform: translateY(110vh) translateX(50px) rotate(360deg); }
+}
+
+@keyframes ambientDrift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(40px); }
+}
+
+@keyframes ambientTwinkle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
+
+.ambient-sun { animation: sunRotate 60s linear infinite; }
+.ambient-float { animation: ambientFloat 12s ease-in-out infinite; }
+.ambient-bubble { animation: ambientBubble 15s linear infinite; }
+.ambient-fall { animation: ambientFall 18s linear infinite; }
+.ambient-drift { animation: ambientDrift 20s ease-in-out infinite; }
+.ambient-twinkle { animation: ambientTwinkle 2.5s ease-in-out infinite; }
+
+/* ============================================
+   PANTALLA DE INICIO — efectos premium
+   ============================================ */
+
+@keyframes titleBreathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+@keyframes cardPopIn {
+  0% { opacity: 0; transform: scale(0.3) translateY(50px); }
+  60% { transform: scale(1.1) translateY(-10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes cardGlow {
   0%, 100% {
-    transform: translateY(0) scale(1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15),
+                0 0 0 4px rgba(255, 255, 255, 0.5);
   }
   50% {
-    transform: translateY(-15px) scale(1.05);
+    box-shadow: 0 10px 35px rgba(253, 224, 71, 0.7),
+                0 0 0 4px rgba(253, 224, 71, 0.6),
+                0 0 30px rgba(253, 224, 71, 0.4);
   }
 }
 
-@keyframes welcomeWiggle {
-  0%, 100% {
-    transform: rotate(0deg) translateY(0);
-  }
-  25% {
-    transform: rotate(-8deg) translateY(-5px);
-  }
-  75% {
-    transform: rotate(8deg) translateY(-5px);
-  }
+@keyframes completedStamp {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(-45deg) scale(0); }
+  60% { transform: translate(-50%, -50%) rotate(-15deg) scale(1.3); }
+  100% { opacity: 1; transform: translate(-50%, -50%) rotate(-12deg) scale(1); }
+}
+
+@keyframes lockShake {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+@keyframes rainbowBorder {
+  0% { border-color: #ff6b6b; }
+  17% { border-color: #ffd93d; }
+  33% { border-color: #6bcf7f; }
+  50% { border-color: #4ecdc4; }
+  67% { border-color: #95a5ff; }
+  83% { border-color: #f368e0; }
+  100% { border-color: #ff6b6b; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.title-breathe { animation: titleBreathe 4s ease-in-out infinite; }
+
+.card-pop-in {
+  /* La animación solo se aplica una vez al cargar (forwards = mantiene el estado final) */
+  animation: cardPopIn 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55) both;
+}
+
+.card-glow { animation: cardGlow 3s ease-in-out infinite; }
+
+.completed-stamp {
+  animation: completedStamp 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) both;
+}
+
+.lock-shake {
+  animation: lockShake 0.5s ease-in-out infinite;
+  animation-play-state: paused;
+}
+
+.lock-shake:hover { animation-play-state: running; }
+
+.rainbow-border {
+  border: 5px solid;
+  animation: rainbowBorder 4s linear infinite;
+}
+
+.shimmer-bg {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
+}
+
+/* ============================================
+   PANTALLA DE BIENVENIDA
+   ============================================ */
+
+@keyframes welcomeBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-15px) scale(1.05); }
 }
 
 @keyframes welcomePulse {
@@ -322,32 +286,80 @@ body {
   }
 }
 
-.welcome-bounce {
-  animation: welcomeBounce 2.5s ease-in-out infinite;
+@keyframes mascotJump {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-30px) rotate(-5deg); }
 }
 
-.welcome-wiggle {
+.welcome-bounce { animation: welcomeBounce 2.5s ease-in-out infinite; }
+.welcome-pulse { animation: welcomePulse 2s ease-in-out infinite; }
+
+.mascot-jump {
   display: inline-block;
-  animation: welcomeWiggle 2s ease-in-out infinite;
-}
-
-.welcome-pulse {
-  animation: welcomePulse 2s ease-in-out infinite;
+  animation: mascotJump 1.5s ease-in-out infinite;
 }
 
 /* ============================================
-   ANIMACIÓN SUAVE DE FLOTACIÓN EN LOGRO
+   FONDO ANIMADO MULTICOLOR
    ============================================ */
 
-@keyframes achievementFloat {
+@keyframes animatedRainbow {
   0%, 100% {
-    transform: translateY(0) scale(1);
+    background: linear-gradient(135deg, #fbcfe8, #ddd6fe, #bfdbfe, #a5f3fc, #a7f3d0);
+    background-size: 400% 400%;
+    background-position: 0% 50%;
   }
   50% {
-    transform: translateY(-12px) scale(1.02);
+    background-position: 100% 50%;
   }
 }
 
-.achievement-float {
-  animation: achievementFloat 3s ease-in-out infinite;
+@keyframes ambientBlob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -30px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+@keyframes titleRainbow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes flagWave {
+  0%, 100% { transform: rotate(-3deg) scale(1); }
+  50% { transform: rotate(3deg) scale(1.05); }
+}
+
+.animated-rainbow-bg {
+  background: linear-gradient(135deg, #fbcfe8, #ddd6fe, #bfdbfe, #a5f3fc, #a7f3d0);
+  background-size: 400% 400%;
+  animation: animatedRainbow 15s ease infinite;
+}
+
+.ambient-blob {
+  animation: ambientBlob 7s ease-in-out infinite;
+}
+
+.title-rainbow {
+  background: linear-gradient(
+    90deg,
+    #ec4899,
+    #8b5cf6,
+    #3b82f6,
+    #10b981,
+    #f59e0b,
+    #ef4444,
+    #ec4899
+  );
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: titleRainbow 4s linear infinite;
+}
+
+.flag-wave {
+  animation: flagWave 2s ease-in-out infinite;
+  display: inline-block;
 }

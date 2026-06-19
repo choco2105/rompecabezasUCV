@@ -6,23 +6,19 @@ interface AnimatedBackgroundProps {
   theme: Theme;
 }
 
-/**
- * Capa decorativa de partículas/elementos flotando según el tema peruano.
- * Z-index bajo para no interferir con el juego.
- */
 export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
-  const items = Array.from({ length: 12 }, (_, i) => ({
+  const items = Array.from({ length: 14 }, (_, i) => ({
     id: i,
     left: Math.random() * 90 + 5,
     top: Math.random() * 90 + 5,
     delay: Math.random() * 8,
-    duration: 10 + Math.random() * 10,
+    duration: 8 + Math.random() * 10,
     size: 20 + Math.random() * 30,
   }));
 
   return (
     <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-      {/* Sol o luna rotando */}
+      {/* Sol/luna */}
       <div
         className="absolute top-6 right-6 h-24 w-24 rounded-full bg-yellow-300 opacity-80 shadow-2xl ambient-sun"
         style={{
@@ -30,12 +26,12 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
         }}
       />
 
-      {/* SELVA: hojas flotando */}
+      {/* SELVA: hojas, mariposas, gotas */}
       {theme === 'selva' && (
         <>
-          {items.slice(0, 6).map((item) => (
+          {items.slice(0, 5).map((item) => (
             <div
-              key={item.id}
+              key={`leaf-${item.id}`}
               className="absolute ambient-float"
               style={{
                 left: `${item.left}%`,
@@ -43,21 +39,37 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
                 animationDelay: `${item.delay}s`,
                 animationDuration: `${item.duration}s`,
                 fontSize: `${item.size}px`,
-                opacity: 0.4,
+                opacity: 0.5,
               }}
             >
               🍃
             </div>
           ))}
+          {items.slice(5, 10).map((item) => (
+            <div
+              key={`butterfly-${item.id}`}
+              className="absolute ambient-float"
+              style={{
+                left: `${item.left}%`,
+                top: `${item.top}%`,
+                animationDelay: `${item.delay + 1}s`,
+                animationDuration: `${item.duration * 0.8}s`,
+                fontSize: `${item.size * 0.7}px`,
+                opacity: 0.6,
+              }}
+            >
+              🦋
+            </div>
+          ))}
         </>
       )}
 
-      {/* COSTA: burbujas/olas subiendo */}
+      {/* COSTA: burbujas, peces, olas */}
       {theme === 'costa' && (
         <>
-          {items.map((item) => (
+          {items.slice(0, 8).map((item) => (
             <div
-              key={item.id}
+              key={`bubble-${item.id}`}
               className="absolute ambient-bubble"
               style={{
                 left: `${item.left}%`,
@@ -71,38 +83,54 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
               <div className="w-full h-full rounded-full bg-white/40 border border-white/60" />
             </div>
           ))}
-        </>
-      )}
-
-      {/* SIERRA: nubes y copos suaves */}
-      {theme === 'sierra' && (
-        <>
-          {items.slice(0, 6).map((item) => (
+          {items.slice(8, 12).map((item) => (
             <div
-              key={item.id}
+              key={`fish-${item.id}`}
               className="absolute ambient-drift"
               style={{
                 left: `${item.left}%`,
-                top: `${item.top}%`,
+                top: `${50 + Math.random() * 40}%`,
+                animationDelay: `${item.delay}s`,
+                animationDuration: `${item.duration * 1.5}s`,
+                fontSize: `${item.size * 0.8}px`,
+                opacity: 0.5,
+              }}
+            >
+              🐟
+            </div>
+          ))}
+        </>
+      )}
+
+      {/* SIERRA: nubes, copos, montañas */}
+      {theme === 'sierra' && (
+        <>
+          {items.slice(0, 5).map((item) => (
+            <div
+              key={`cloud-${item.id}`}
+              className="absolute ambient-drift"
+              style={{
+                left: `${item.left}%`,
+                top: `${item.top * 0.5}%`,
                 animationDelay: `${item.delay}s`,
                 animationDuration: `${item.duration * 1.5}s`,
                 fontSize: `${item.size}px`,
-                opacity: 0.5,
+                opacity: 0.6,
               }}
             >
               ☁️
             </div>
           ))}
-          {items.slice(6, 12).map((item) => (
+          {items.slice(5, 12).map((item) => (
             <div
-              key={item.id}
+              key={`snow-${item.id}`}
               className="absolute ambient-fall"
               style={{
                 left: `${item.left}%`,
                 top: `-10%`,
                 animationDelay: `${item.delay}s`,
                 animationDuration: `${item.duration * 1.3}s`,
-                fontSize: `${item.size * 0.6}px`,
+                fontSize: `${item.size * 0.5}px`,
                 opacity: 0.6,
               }}
             >
@@ -112,12 +140,12 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
         </>
       )}
 
-      {/* UNIVERSAL: flores y destellos */}
+      {/* UNIVERSAL */}
       {theme === 'universal' && (
         <>
           {items.slice(0, 6).map((item) => (
             <div
-              key={item.id}
+              key={`flower-${item.id}`}
               className="absolute ambient-fall"
               style={{
                 left: `${item.left}%`,
@@ -133,7 +161,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
           ))}
           {items.slice(6, 12).map((item) => (
             <div
-              key={item.id}
+              key={`sparkle-${item.id}`}
               className="absolute ambient-twinkle"
               style={{
                 left: `${item.left}%`,
